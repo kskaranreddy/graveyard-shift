@@ -42,9 +42,3 @@ Open `index.html` in a modern browser.
 ## Third-party resources
 - Fonts via Google Fonts: Creepster, Pirata One, Plus Jakarta Sans, Special Elite (SIL Open Font License)
 - Emoji: system emoji set
-
-## Team
-- Your name(s) here
-
-## Live demo
-- Add your deployed link here
