@@ -1,0 +1,3391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Graveyard Shift – Banish Your To-Dos | Hack-to-Ween 2026</title>
+<meta name="description" content="A Halloween-inspired gamified productivity & séance focus app for Hack-to-Ween 2026 by AWS Student Builder Group, IIT Jodhpur. Banish your tasks before dawn.">
+
+<!-- Spooky & Modern Typography -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Pirata+One&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================================
+   CSS CUSTOM PROPERTIES & HAUNTED THEMES
+   ========================================================================== */
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+
+  /* Theme 1: Cursed Pumpkin (Default) */
+  --bg-core: #090610;
+  --bg-gradient-1: #28103c;
+  --bg-gradient-2: #180824;
+  --card-bg: rgba(26, 17, 44, 0.85);
+  --card-hover: rgba(38, 24, 64, 0.95);
+  --card-border: #3b285c;
+  --ink: #f2eaff;
+  --ink-muted: #a694c7;
+  --ink-subtle: #736294;
+  --accent: #ff7a1a;
+  --accent-glow: rgba(255, 122, 26, 0.45);
+  --accent-secondary: #a45cff;
+  --accent-secondary-glow: rgba(164, 92, 255, 0.4);
+  --ghoul-green: #4eed99;
+  --ghoul-green-glow: rgba(78, 237, 153, 0.4);
+  --blood-red: #ff3b5c;
+  --blood-red-glow: rgba(255, 59, 92, 0.4);
+  --shadow-dark: rgba(0, 0, 0, 0.55);
+
+  --font-spooky: 'Creepster', Impact, cursive;
+  --font-gothic: 'Pirata One', Georgia, serif;
+  --font-typewriter: 'Special Elite', Courier, monospace;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --trans: 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Theme 2: Toxic Ectoplasm */
+[data-theme="ectoplasm"] {
+  --bg-core: #040d0a;
+  --bg-gradient-1: #09281e;
+  --bg-gradient-2: #051812;
+  --card-bg: rgba(14, 38, 31, 0.85);
+  --card-hover: rgba(20, 54, 44, 0.95);
+  --card-border: #1c5242;
+  --ink: #e6fff4;
+  --ink-muted: #8ecbb4;
+  --ink-subtle: #568a76;
+  --accent: #00ffaa;
+  --accent-glow: rgba(0, 255, 170, 0.5);
+  --accent-secondary: #3ae8c7;
+  --accent-secondary-glow: rgba(58, 232, 199, 0.4);
+}
+
+/* Theme 3: Blood Moon */
+[data-theme="bloodmoon"] {
+  --bg-core: #0e0407;
+  --bg-gradient-1: #2b0811;
+  --bg-gradient-2: #190509;
+  --card-bg: rgba(38, 14, 21, 0.85);
+  --card-hover: rgba(54, 20, 30, 0.95);
+  --card-border: #561d2a;
+  --ink: #ffeef2;
+  --ink-muted: #cf9aa7;
+  --ink-subtle: #8a5864;
+  --accent: #ff2d55;
+  --accent-glow: rgba(255, 45, 85, 0.5);
+  --accent-secondary: #ff758c;
+  --accent-secondary-glow: rgba(255, 117, 140, 0.4);
+}
+
+/* Theme 4: Phantom Mist */
+[data-theme="phantom"] {
+  --bg-core: #060b14;
+  --bg-gradient-1: #0e1e36;
+  --bg-gradient-2: #081120;
+  --card-bg: rgba(18, 32, 54, 0.85);
+  --card-hover: rgba(26, 46, 78, 0.95);
+  --card-border: #2b4570;
+  --ink: #ebf5ff;
+  --ink-muted: #96b3d4;
+  --ink-subtle: #577394;
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.5);
+  --accent-secondary: #818cf8;
+  --accent-secondary-glow: rgba(129, 140, 248, 0.4);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-core);
+  background-image: 
+    radial-gradient(circle at 80% -5%, var(--bg-gradient-1) 0%, transparent 60%),
+    radial-gradient(circle at 10% 100%, var(--bg-gradient-2) 0%, transparent 55%),
+    radial-gradient(circle at 50% 40%, rgba(20, 10, 35, 0.4) 0%, transparent 80%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Spooky Canvas Background */
+#fogCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* Spiderwebs */
+.web-corner {
+  position: fixed;
+  width: 130px;
+  height: 130px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.35;
+  transition: opacity var(--trans);
+}
+.web-tl { top: 0; left: 0; }
+.web-tr { top: 0; right: 0; transform: scaleX(-1); }
+
+/* Bats */
+.bat-swarm {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+.bat {
+  position: absolute;
+  top: 10vh;
+  left: -80px;
+  font-size: 26px;
+  animation: batFlight 18s linear infinite;
+  opacity: 0.75;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,0.8));
+}
+.bat:nth-child(2) {
+  top: 24vh;
+  font-size: 19px;
+  animation-duration: 24s;
+  animation-delay: 6s;
+  opacity: 0.55;
+}
+.bat:nth-child(3) {
+  top: 6vh;
+  font-size: 32px;
+  animation-duration: 21s;
+  animation-delay: 12s;
+  opacity: 0.65;
+}
+
+@keyframes batFlight {
+  0% { transform: translate(0, 0) rotate(-10deg) scale(0.9); }
+  25% { transform: translate(32vw, 45px) rotate(12deg) scale(1.1); }
+  50% { transform: translate(65vw, -25px) rotate(-8deg) scale(0.95); }
+  75% { transform: translate(90vw, 35px) rotate(10deg) scale(1); }
+  100% { transform: translate(118vw, 15px) rotate(-6deg) scale(0.9); }
+}
+
+/* ==========================================================================
+   APP CONTAINER & NAVIGATION BAR
+   ========================================================================== */
+.app-container {
+  position: relative;
+  z-index: 10;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px 20px 80px;
+}
+
+/* Top Notification / Hackathon Banner */
+.hackathon-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(90deg, rgba(255, 122, 26, 0.15), rgba(164, 92, 255, 0.15));
+  border: 1px solid rgba(255, 122, 26, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+}
+.hackathon-ribbon .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #150600;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+.hackathon-ribbon .organizer {
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+.hackathon-ribbon .organizer strong {
+  color: var(--ink);
+}
+.hackathon-ribbon .actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.btn-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--card-border);
+  color: var(--ink);
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--trans);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-pill:hover {
+  background: var(--card-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Header & Identity */
+header.app-header {
+  text-align: center;
+  margin-bottom: 26px;
+  position: relative;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.brand-icon {
+  font-size: 3rem;
+  display: inline-block;
+  animation: floatPumpkin 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 16px var(--accent-glow));
+}
+@keyframes floatPumpkin {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-7px) rotate(4deg); }
+}
+.brand-titles {
+  text-align: left;
+}
+.brand-title {
+  font-family: var(--font-spooky);
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  letter-spacing: 0.04em;
+  margin: 0;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 0 14px var(--accent-glow), 0 0 40px rgba(255, 122, 26, 0.25);
+  animation: spookyFlicker 6s infinite;
+}
+@keyframes spookyFlicker {
+  0%, 19%, 21%, 59%, 61%, 100% { opacity: 1; }
+  20%, 60% { opacity: 0.72; }
+}
+.brand-tagline {
+  font-family: var(--font-typewriter);
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  margin: 2px 0 0;
+}
+
+/* Controls Bar (Sound, Ambience, Theme, AWS Telemetry, Grimoire) */
+.quick-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.control-btn, .theme-select, .ambient-select {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--ink);
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--trans);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+}
+.control-btn:hover, .theme-select:hover, .ambient-select:hover {
+  border-color: var(--accent);
+  background: var(--card-hover);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.theme-select, .ambient-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23a694c7' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+/* ==========================================================================
+   HUNTER STATS & PROGRESSION ROW
+   ========================================================================== */
+.stats-banner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 900px) {
+  .stats-banner {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stats-banner .rank-box {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 540px) {
+  .stats-banner {
+    grid-template-columns: 1fr;
+  }
+  .stats-banner .rank-box {
+    grid-column: span 1;
+  }
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--trans), border-color var(--trans);
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 122, 26, 0.4);
+}
+.stat-card .label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.stat-card .val {
+  font-family: var(--font-gothic);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--accent);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.stat-card.green .val { color: var(--ghoul-green); text-shadow: 0 0 10px var(--ghoul-green-glow); }
+.stat-card.purple .val { color: var(--accent-secondary); text-shadow: 0 0 10px var(--accent-secondary-glow); }
+.stat-card.red .val { color: var(--blood-red); text-shadow: 0 0 10px var(--blood-red-glow); }
+
+/* Rank Box */
+.rank-box {
+  background: linear-gradient(135deg, rgba(40, 16, 60, 0.8), rgba(20, 10, 35, 0.9));
+  border: 1px solid var(--accent-secondary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.rank-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rank-title {
+  font-family: var(--font-gothic);
+  font-size: 1.35rem;
+  color: var(--accent-secondary);
+  line-height: 1.1;
+}
+.rank-level {
+  font-size: 0.72rem;
+  background: rgba(164, 92, 255, 0.25);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.xp-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-full);
+  margin-top: 8px;
+  overflow: hidden;
+}
+.xp-bar-fill {
+  height: 100%;
+  width: 25%;
+  background: linear-gradient(90deg, var(--accent-secondary), var(--accent));
+  transition: width 0.5s ease;
+  border-radius: var(--radius-full);
+}
+.xp-caption {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+   NAVIGATION TABS
+   ========================================================================== */
+.nav-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 22px;
+  padding-bottom: 2px;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--ink-muted);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 10px 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--trans);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+.tab-btn:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.03);
+}
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(255, 122, 26, 0.08);
+}
+.tab-btn .badge-count {
+  background: rgba(255, 122, 26, 0.2);
+  color: var(--accent);
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+/* ==========================================================================
+   MAIN DUAL GRID (TASKS & SEANCE ALTAR)
+   ========================================================================== */
+.view-section {
+  display: none;
+}
+.view-section.active {
+  display: block;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panels */
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: 0 14px 40px var(--shadow-dark);
+  position: relative;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.panel-title {
+  font-family: var(--font-spooky);
+  font-size: 1.8rem;
+  color: var(--accent-secondary);
+  letter-spacing: 0.05em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Boss Battle Banner (If a boss spirit is present) */
+.boss-banner {
+  background: linear-gradient(135deg, rgba(80, 15, 25, 0.75), rgba(30, 8, 15, 0.9));
+  border: 1px solid var(--blood-red);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  display: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 24px rgba(255, 59, 92, 0.25);
+  animation: bossPulse 3s ease-in-out infinite;
+}
+@keyframes bossPulse {
+  0%, 100% { border-color: var(--blood-red); }
+  50% { border-color: #ff8fa3; box-shadow: 0 0 35px rgba(255, 59, 92, 0.45); }
+}
+.boss-banner.active {
+  display: block;
+}
+.boss-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.boss-name {
+  font-family: var(--font-gothic);
+  font-size: 1.3rem;
+  color: var(--blood-red);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.boss-hp-text {
+  font-size: 0.82rem;
+  font-family: var(--font-typewriter);
+  color: #ffb8c6;
+}
+.boss-hp-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid rgba(255, 59, 92, 0.4);
+}
+.boss-hp-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #ff2d55, #ff7a1a);
+  transition: width 0.4s ease;
+}
+.boss-hint {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  margin-top: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Summon Task Form */
+.summon-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+  background: rgba(15, 10, 24, 0.6);
+  border: 1px dashed var(--card-border);
+  padding: 14px;
+  border-radius: var(--radius-md);
+}
+.summon-row-top {
+  display: flex;
+  gap: 10px;
+}
+.summon-input {
+  flex: 1;
+  background: #11091e;
+  border: 1px solid var(--card-border);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--trans), box-shadow var(--trans);
+}
+.summon-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+.summon-row-bottom {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.summon-select {
+  flex: 1 1 140px;
+  background: #11091e;
+  border: 1px solid var(--card-border);
+  color: var(--ink);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+.summon-select:focus {
+  border-color: var(--accent);
+}
+.btn-summon {
+  background: var(--accent);
+  color: #1a0800;
+  border: none;
+  font-family: var(--font-gothic);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--trans);
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+.btn-summon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px var(--accent-glow);
+  background: #ff8c36;
+}
+
+/* Task Filtering & Search */
+.task-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-search {
+  flex: 1 1 160px;
+  background: #11091e;
+  border: 1px solid var(--card-border);
+  color: var(--ink);
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  outline: none;
+}
+.filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.filter-btn:hover, .filter-btn.active {
+  background: rgba(255, 122, 26, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Spirit Task List */
+.haunt-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.haunt-list::-webkit-scrollbar {
+  width: 6px;
+}
+.haunt-list::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 4px;
+}
+
+.soul-item {
+  background: #130a24;
+  border: 1px solid var(--card-border);
+  border-left: 5px solid var(--spirit-color, var(--accent-secondary));
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  transition: transform var(--trans), box-shadow var(--trans), border-color var(--trans);
+  animation: soulRise 0.35s ease-out;
+}
+@keyframes soulRise {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.soul-item:hover {
+  transform: translateX(3px);
+  border-color: rgba(255, 122, 26, 0.5);
+}
+.soul-item.active-haunt {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 24px var(--accent-glow);
+  background: linear-gradient(90deg, rgba(255, 122, 26, 0.12), #140b25);
+}
+.soul-item.banishing {
+  animation: soulVanish 0.65s forwards cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes soulVanish {
+  0% { transform: scale(1); opacity: 1; filter: blur(0); }
+  50% { transform: scale(1.04) translateY(-10px); opacity: 0.8; filter: drop-shadow(0 0 20px var(--accent)) blur(1px); }
+  100% { transform: scale(0.85) translateY(-35px); opacity: 0; filter: blur(10px); }
+}
+
+.soul-avatar {
+  font-size: 1.85rem;
+  line-height: 1;
+  animation: spiritFloat 3s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+}
+@keyframes spiritFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.soul-content {
+  flex: 1;
+  min-width: 0;
+}
+.soul-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.soul-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+}
+.meta-tag {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink-muted);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+.meta-level {
+  font-weight: 600;
+  color: var(--spirit-color);
+}
+.soul-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-haunt {
+  background: rgba(164, 92, 255, 0.15);
+  border: 1px solid var(--accent-secondary);
+  color: var(--ink);
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--trans);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-haunt:hover {
+  background: var(--accent-secondary);
+  color: #fff;
+  box-shadow: 0 0 12px var(--accent-secondary-glow);
+}
+.btn-banish {
+  background: var(--accent);
+  border: none;
+  color: #120500;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.btn-banish:hover {
+  background: #ff8f3d;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+.btn-delete {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-subtle);
+  font-size: 0.9rem;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all var(--trans);
+}
+.btn-delete:hover {
+  border-color: var(--blood-red);
+  color: var(--blood-red);
+}
+
+/* Empty State */
+.empty-crypt {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--ink-muted);
+  border: 1px dashed var(--card-border);
+  border-radius: var(--radius-md);
+  margin-top: 10px;
+}
+.empty-crypt .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+.empty-crypt p {
+  margin: 4px 0 14px;
+  font-family: var(--font-typewriter);
+}
+
+/* ==========================================================================
+   SEANCE ALTAR & CANDLE FOCUS TIMER
+   ========================================================================== */
+.seance-panel {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.altar-runes {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  font-size: 1.2rem;
+  color: var(--ink-subtle);
+  opacity: 0.5;
+  letter-spacing: 0.2em;
+}
+
+/* Candle & Ring Display */
+.altar-stage {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 10px auto 16px;
+  display: grid;
+  place-items: center;
+}
+.rune-svg-ring {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+.rune-circle-bg {
+  fill: none;
+  stroke: rgba(59, 40, 92, 0.45);
+  stroke-width: 10;
+}
+.rune-circle-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 691.15; /* 2 * PI * 110 */
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rune-glyphs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: runeSpin 60s linear infinite;
+  opacity: 0.45;
+}
+@keyframes runeSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Realistic Animated Candle */
+.candle-container {
+  position: relative;
+  width: 90px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 5;
+}
+.candle-glow {
+  position: absolute;
+  top: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 122, 26, 0.55) 0%, rgba(255, 122, 26, 0) 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  animation: flameGlow 2.5s infinite alternate ease-in-out;
+}
+@keyframes flameGlow {
+  0% { transform: scale(0.92); opacity: 0.5; }
+  100% { transform: scale(1.18); opacity: 0.85; }
+}
+.candle-flame {
+  position: absolute;
+  top: 10px;
+  width: 18px;
+  height: 32px;
+  background: linear-gradient(to bottom, #ffffff 0%, #ffe600 25%, #ff7a1a 70%, rgba(255, 77, 0, 0.2) 100%);
+  border-radius: 50% 50% 35% 35% / 60% 60% 40% 40%;
+  transform-origin: center bottom;
+  filter: drop-shadow(0 0 8px #ff7a1a);
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.2s ease;
+}
+.candle-flame.burning {
+  opacity: 1;
+  animation: flameFlicker 0.12s infinite alternate ease-in-out;
+}
+@keyframes flameFlicker {
+  0% { transform: scale(1, 1) rotate(-1deg); }
+  50% { transform: scale(0.94, 1.05) rotate(2deg); }
+  100% { transform: scale(1.04, 0.96) rotate(-2deg); }
+}
+.candle-wick {
+  width: 3px;
+  height: 12px;
+  background: #3a2211;
+  border-radius: 2px;
+}
+.candle-wax {
+  width: 48px;
+  height: 70px;
+  background: linear-gradient(to right, #402366, #6b409e 40%, #522d7d 80%, #351c54);
+  border-radius: 6px 6px 4px 4px;
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.5), inset 0 3px 6px rgba(255, 255, 255, 0.15);
+  position: relative;
+  transition: height 1s linear;
+}
+.candle-drips {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: #7345aa;
+  border-radius: 4px 4px 50% 50%;
+}
+.candle-holder {
+  width: 86px;
+  height: 14px;
+  background: linear-gradient(to bottom, #5a3d1b, #2b1d0d);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.7);
+  margin-top: -2px;
+}
+
+/* Digital Timer Display */
+.digital-timer {
+  font-family: var(--font-spooky);
+  font-size: 3.4rem;
+  color: var(--accent);
+  text-shadow: 0 0 18px var(--accent-glow);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.current-haunt-target {
+  font-family: var(--font-typewriter);
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  min-height: 2.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  word-break: break-word;
+}
+.current-haunt-target strong {
+  color: var(--ink);
+}
+
+/* Altar Ritual Buttons */
+.altar-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 0 16px;
+  flex-wrap: wrap;
+}
+.btn-ritual {
+  font-family: var(--font-gothic);
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--trans);
+}
+.btn-ritual.primary {
+  background: var(--accent);
+  color: #120500;
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 4px 18px var(--accent-glow);
+}
+.btn-ritual.primary:hover {
+  transform: translateY(-2px);
+  background: #ff8c38;
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+.btn-ritual.secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--card-border);
+}
+.btn-ritual.secondary:hover {
+  background: var(--card-hover);
+  border-color: var(--accent-secondary);
+  color: var(--accent-secondary);
+}
+
+/* Focus Ritual Preset Selector */
+.ritual-presets {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.preset-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.preset-chip:hover, .preset-chip.active {
+  background: rgba(255, 122, 26, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Séance Message / Status Log */
+.altar-status-msg {
+  font-family: var(--font-typewriter);
+  font-size: 0.85rem;
+  min-height: 1.5em;
+  margin-top: 14px;
+  color: var(--ghoul-green);
+  text-shadow: 0 0 8px var(--ghoul-green-glow);
+  transition: opacity 0.3s ease;
+}
+
+/* ==========================================================================
+   THE GRAVEYARD TAB (CEMETERY YARD & TOMBSTONES)
+   ========================================================================== */
+.graveyard-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.cemetery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 18px;
+  min-height: 250px;
+}
+.tombstone-card {
+  background: linear-gradient(180deg, #2a203d 0%, #150f22 100%);
+  border: 2px solid #43335e;
+  border-radius: 45% 45% 8px 8px / 30% 30% 8px 8px;
+  padding: 24px 14px 16px;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+  position: relative;
+  transition: transform var(--trans), box-shadow var(--trans), border-color var(--trans);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.tombstone-card:hover {
+  transform: translateY(-6px) rotate(1deg);
+  border-color: var(--accent);
+  box-shadow: 0 14px 30px var(--accent-glow);
+}
+.tombstone-cross {
+  font-size: 1.4rem;
+  color: #79619c;
+  margin-bottom: 6px;
+}
+.tombstone-rip {
+  font-family: var(--font-gothic);
+  font-size: 1.35rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.tombstone-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+.tombstone-epitaph {
+  font-family: var(--font-typewriter);
+  font-size: 0.75rem;
+  color: #9d8db8;
+  font-style: italic;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+.tombstone-footer {
+  border-top: 1px dashed #3a2b52;
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--ink-subtle);
+}
+.btn-resurrect {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.btn-resurrect:hover {
+  background: var(--accent);
+  color: #1a0800;
+}
+
+/* ==========================================================================
+   AWS TELEMETRY & ARCHITECTURE MODAL
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 3, 10, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  place-items: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.modal-overlay.open {
+  display: grid;
+  opacity: 1;
+}
+.modal-window {
+  background: #150d26;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  max-width: 860px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title {
+  font-family: var(--font-spooky);
+  font-size: 1.8rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--ink-muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px;
+}
+.modal-close:hover {
+  color: var(--ink);
+}
+.modal-body {
+  padding: 24px;
+}
+
+/* AWS Cloud Diagram Box */
+.aws-architecture-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.aws-node {
+  background: #1c1133;
+  border: 1px solid #3d295c;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  position: relative;
+  transition: border-color var(--trans), transform var(--trans);
+}
+.aws-node:hover {
+  border-color: #ff9900;
+  transform: translateY(-2px);
+}
+.aws-node-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.aws-icon {
+  width: 32px;
+  height: 32px;
+  background: #251842;
+  border: 1px solid #ff9900;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+}
+.aws-node-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ff9900;
+}
+.aws-node-desc {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  line-height: 1.35;
+}
+
+/* Live CloudWatch Terminal Simulator */
+.cloudwatch-terminal {
+  background: #090511;
+  border: 1px solid #2e1c47;
+  border-radius: var(--radius-md);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.8rem;
+  padding: 14px;
+  color: #38ef7d;
+  height: 220px;
+  overflow-y: auto;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
+  margin-top: 14px;
+}
+.cw-line {
+  margin-bottom: 4px;
+  display: flex;
+  gap: 8px;
+}
+.cw-ts { color: var(--ink-subtle); }
+.cw-info { color: #58a6ff; }
+.cw-success { color: #38ef7d; }
+.cw-warn { color: #e3b341; }
+.cw-event { color: #ff7a1a; }
+
+/* ==========================================================================
+   CURSE OF SILENCE (FULLSCREEN ZEN FOCUS MODE)
+   ========================================================================== */
+.zen-overlay {
+  position: fixed;
+  inset: 0;
+  background: #06040a;
+  z-index: 2000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+}
+.zen-overlay.active {
+  display: flex;
+}
+.zen-title {
+  font-family: var(--font-spooky);
+  font-size: 2.5rem;
+  color: var(--accent);
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+.zen-task-name {
+  font-family: var(--font-typewriter);
+  font-size: 1.3rem;
+  color: var(--ink);
+  max-width: 600px;
+  margin-bottom: 24px;
+}
+.zen-timer {
+  font-family: var(--font-spooky);
+  font-size: 6rem;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 30px;
+  text-shadow: 0 0 35px var(--accent-glow);
+}
+.btn-exit-zen {
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--ink-muted);
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.btn-exit-zen:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   GRIMOIRE & ACHIEVEMENTS MODAL
+   ========================================================================== */
+.grimoire-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.badge-card {
+  background: #190f2b;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: border-color var(--trans);
+}
+.badge-card.unlocked {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.1), #190f2b);
+}
+.badge-card.locked {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+.badge-icon {
+  font-size: 2.2rem;
+}
+.badge-info h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.badge-info p {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+footer.app-footer {
+  margin-top: 50px;
+  text-align: center;
+  border-top: 1px solid var(--card-border);
+  padding-top: 24px;
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
+footer .links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+footer a, footer button.link-btn {
+  color: var(--accent);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0;
+}
+footer a:hover, footer button.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Centre fix: rings fill the whole altar stage so the candle sits at their exact centre */
+.altar-stage > svg { width: 100%; height: 100%; }
+.candle-container { transform: translateY(-5px); }
+</style>
+<script>window.GS_AWS_URL = 'https://wwjymtfscnrkifcoao7sbzgdoa0kcmrj.lambda-url.ap-southeast-2.on.aws/'; /* optional: paste your Lambda Function URL here before deploying */</script>
+</head>
+
+<body data-theme="pumpkin">
+
+<!-- Canvas Fog Layer -->
+<canvas id="fogCanvas"></canvas>
+
+<!-- Spooky Decorative Elements -->
+<svg class="web-corner web-tl" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+  <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L35,80 M0,0 L80,35" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <path d="M25,0 Q25,25 0,25 M50,0 Q50,50 0,50 M75,0 Q75,75 0,75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+</svg>
+<svg class="web-corner web-tr" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+  <path d="M0,0 L100,0 M0,0 L0,100 M0,0 L70,70 M0,0 L35,80 M0,0 L80,35" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <path d="M25,0 Q25,25 0,25 M50,0 Q50,50 0,50 M75,0 Q75,75 0,75" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+</svg>
+
+<div class="bat-swarm">
+  <div class="bat">🦇</div>
+  <div class="bat">🦇</div>
+  <div class="bat">🦇</div>
+</div>
+
+<!-- ==========================================================================
+     MAIN APPLICATION
+     ========================================================================== -->
+<div class="app-container">
+
+  <!-- Top Hackathon Banner -->
+  <aside class="hackathon-ribbon">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge">HACK-TO-WEEN 2026</span>
+      <span class="organizer">Virtual Hackathon by <strong>AWS Student Builder Group, IIT Jodhpur</strong></span>
+    </div>
+    <div class="actions">
+      <button class="btn-pill" id="btnAwsArchOpen">
+        <span>☁️</span> AWS Cloud
+      </button>
+      <button class="btn-pill" id="btnSeedDemo">
+        <span>⚡</span> Load Demo Spirits
+      </button>
+    </div>
+  </aside>
+
+  <!-- Header & Toolbar -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand">
+        <span class="brand-icon">🎃</span>
+        <div class="brand-titles">
+          <h1 class="brand-title">GRAVEYARD SHIFT</h1>
+          <p class="brand-tagline">Banish your to-dos before dawn • Hack-to-Ween 2026 Edition</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="quick-controls">
+        <button class="control-btn" id="btnMuteAudio" title="Toggle Sound Effects">
+          <span id="muteIcon">🔊</span> <span id="muteText">Audio ON</span>
+        </button>
+
+        <select class="ambient-select" id="selectAmbience" title="Ambient Soundscape">
+          <option value="off">🔇 Silence</option>
+          <option value="wind">💨 Cemetery Wind</option>
+          <option value="rain">🌧️ Midnight Rain</option>
+          <option value="crypt">🕯️ Crypt Drone</option>
+        </select>
+
+        <select class="theme-select" id="selectTheme" title="Visual Haunted Theme">
+          <option value="pumpkin">🎃 Cursed Pumpkin</option>
+          <option value="ectoplasm">🧪 Toxic Ectoplasm</option>
+          <option value="bloodmoon">🩸 Blood Moon</option>
+          <option value="phantom">👻 Phantom Mist</option>
+        </select>
+
+        <button class="control-btn" id="btnGrimoireOpen" title="View Hunter Grimoire & Achievements">
+          <span>📜</span> Grimoire
+        </button>
+
+        <button class="control-btn" id="btnZenEnter" title="Enter Curse of Silence (Zen Focus Mode)">
+          <span>👁️</span> Zen Mode
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats & Necromancer Level Banner -->
+  <section class="stats-banner" aria-label="Necromancer Progression and Haunt Stats">
+    <div class="stat-card rank-box">
+      <div class="rank-badge">
+        <span class="rank-title" id="hunterRankTitle">Novice Medium</span>
+        <span class="rank-level" id="hunterRankLevel">LVL 1</span>
+      </div>
+      <div class="xp-bar-bg">
+        <div class="xp-bar-fill" id="xpBarFill"></div>
+      </div>
+      <div class="xp-caption">
+        <span id="xpText">0 / 100 XP</span>
+        <span>Next: Crypt Seeker</span>
+      </div>
+    </div>
+
+    <div class="stat-card green">
+      <span class="label"><span>🪦</span> Souls Banished</span>
+      <span class="val" id="statBanished">0</span>
+    </div>
+
+    <div class="stat-card purple">
+      <span class="label"><span>👻</span> Still Haunting</span>
+      <span class="val" id="statHaunting">0</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="label"><span>🕯️</span> Séance Minutes</span>
+      <span class="val" id="statMinutes">0</span>
+    </div>
+
+    <div class="stat-card red">
+      <span class="label"><span>🔥</span> Witching Streak</span>
+      <span class="val" id="statStreak">1 <span style="font-size:1rem;color:var(--ink-muted);">days</span></span>
+    </div>
+  </section>
+
+  <!-- Main Navigation Tabs -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="tab-btn active" id="tabTasksBtn" role="tab" aria-selected="true" aria-controls="viewTasks">
+      <span>📜 The Haunted List</span>
+      <span class="badge-count" id="activeTaskCount">0</span>
+    </button>
+    <button class="tab-btn" id="tabGraveyardBtn" role="tab" aria-selected="false" aria-controls="viewGraveyard">
+      <span>🪦 The Cemetery Yard</span>
+      <span class="badge-count" id="banishedCount">0</span>
+    </button>
+    <button class="tab-btn" id="tabAwsBtn" role="tab" aria-selected="false" aria-controls="viewAws">
+      <span>☁️ AWS Cloud</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================================
+       TAB 1: THE HAUNTED LIST & SEANCE ALTAR
+       ======================================================================== -->
+  <section class="view-section active" id="viewTasks" role="tabpanel">
+    <div class="main-grid">
+
+      <!-- Left Column: Task Sanctum -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><span>👻</span> The Haunted Sanctum</h2>
+          <div style="font-size:0.8rem; color:var(--ink-muted); font-family:var(--font-typewriter);">
+            Target a spirit to focus your séance
+          </div>
+        </div>
+
+        <!-- Epic Boss Battle Banner (Shown if a Boss Spirit exists) -->
+        <div class="boss-banner" id="bossBanner">
+          <div class="boss-header">
+            <span class="boss-name"><span>👑</span> <strong id="bossName">Arch-Demon: Hackathon Final Submission</strong></span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="boss-hp-text" id="bossHpText">100 / 100 HP</span>
+              <button class="btn-pill" id="btnFocusBoss" style="background:var(--blood-red); border-color:#ff8fa3; color:#fff; font-weight:700;">⚔️ Target Boss</button>
+            </div>
+          </div>
+          <div class="boss-hp-bar">
+            <div class="boss-hp-fill" id="bossHpFill" style="width:100%;"></div>
+          </div>
+          <div class="boss-hint">
+            <span>⚔️ Each completed séance deals 35 HP damage to the Arch-Demon</span>
+            <span>Reward: 150 XP</span>
+          </div>
+        </div>
+
+        <!-- Summon Spirit Form -->
+        <form class="summon-form" id="summonForm">
+          <div class="summon-row-top">
+            <input type="text" class="summon-input" id="taskInput" placeholder="Name the task that is haunting you..." maxlength="90" required autocomplete="off">
+          </div>
+          <div class="summon-row-bottom">
+            <select class="summon-select" id="taskRealm" title="Task Realm / Category">
+              <option value="code">💻 Engineering & Code</option>
+              <option value="aws">☁️ AWS & Cloud</option>
+              <option value="bug">🐛 Bug Exorcism</option>
+              <option value="design">🎨 Spooky UI & Design</option>
+              <option value="docs">📜 Submission Docs</option>
+              <option value="life">🔮 Mortal Realm</option>
+            </select>
+
+            <select class="summon-select" id="taskLevel" title="Spirit Rank & Difficulty">
+              <option value="1">👻 Poltergeist (Low • 15m)</option>
+              <option value="2" selected>🧟 Zombie (Medium • 25m)</option>
+              <option value="3">💀 Demon (High • 45m)</option>
+              <option value="boss">👑 Nightmare Boss (Epic • 100 HP)</option>
+            </select>
+
+            <button type="submit" class="btn-summon">
+              <span>⚡</span> Summon Spirit
+            </button>
+          </div>
+        </form>
+
+        <!-- Filters & Search -->
+        <div class="task-filter-bar">
+          <input type="text" class="filter-search" id="taskSearch" placeholder="Search spirits...">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="boss">👑 Bosses</button>
+          <button class="filter-btn" data-filter="3">💀 Demon</button>
+          <button class="filter-btn" data-filter="2">🧟 Zombie</button>
+          <button class="filter-btn" data-filter="1">👻 Poltergeist</button>
+        </div>
+
+        <!-- Active Task List -->
+        <ul class="haunt-list" id="hauntList" aria-live="polite"></ul>
+
+        <!-- Empty State Container -->
+        <div class="empty-crypt" id="emptyState" style="display:none;">
+          <div class="empty-icon">🕯️</div>
+          <h3>The Crypt is Eerily Quiet</h3>
+          <p>No spirits haunt your desk right now. Summon a task above, or load sample demo data to see the magic.</p>
+          <button class="btn-pill" id="btnEmptySeed" style="padding:6px 16px; margin:0 auto;">⚡ Load Spooky Demo Tasks</button>
+        </div>
+      </div>
+
+      <!-- Right Column: Séance Focus Altar -->
+      <div class="panel seance-panel">
+        <div class="altar-runes">ᛗ ᛟ ᚱ ᛏ ᛁ ᛋ</div>
+        <div class="panel-header" style="justify-content:center;">
+          <h2 class="panel-title"><span>🔮</span> Séance Focus Altar</h2>
+        </div>
+
+        <!-- Dynamic Candle & Progress Rune Ring -->
+        <div class="altar-stage">
+          <svg class="rune-svg-ring" width="240" height="240" viewBox="0 0 240 240">
+            <circle class="rune-circle-bg" cx="120" cy="120" r="110"/>
+            <circle class="rune-circle-progress" id="runeProgress" cx="120" cy="120" r="110"/>
+          </svg>
+
+          <!-- Rotating Ancient Runes SVG -->
+          <svg class="rune-glyphs" width="240" height="240" viewBox="0 0 240 240">
+            <circle cx="120" cy="120" r="118" fill="none" stroke="rgba(164,92,255,0.3)" stroke-width="1" stroke-dasharray="4 8"/>
+            <circle cx="120" cy="120" r="102" fill="none" stroke="rgba(255,122,26,0.3)" stroke-width="1" stroke-dasharray="10 6"/>
+          </svg>
+
+          <!-- Interactive Melting Candle -->
+          <div class="candle-container">
+            <div class="candle-glow" id="candleGlow"></div>
+            <div class="candle-flame" id="candleFlame"></div>
+            <div class="candle-wick"></div>
+            <div class="candle-wax" id="candleWax">
+              <div class="candle-drips"></div>
+            </div>
+            <div class="candle-holder"></div>
+          </div>
+        </div>
+
+        <!-- Time Remaining -->
+        <div class="digital-timer" id="timerDisplay" role="timer">25:00</div>
+
+        <!-- Currently Targeted Spirit -->
+        <div class="current-haunt-target" id="targetBanner">
+          <span>🕯️ No spirit targeted. Pick a task from the list.</span>
+        </div>
+
+        <!-- Ritual Controls -->
+        <div class="altar-actions">
+          <button class="btn-ritual primary" id="btnToggleSeance">
+            <span id="seanceIcon">🔥</span> <span id="seanceBtnText">Light the Candle</span>
+          </button>
+          <button class="btn-ritual secondary" id="btnResetSeance">
+            <span>💨</span> Snuff Candle
+          </button>
+        </div>
+
+        <!-- Focus Duration Presets -->
+        <div class="ritual-presets">
+          <button class="preset-chip" data-min="15">15m Sprint</button>
+          <button class="preset-chip active" data-min="25">25m Séance</button>
+          <button class="preset-chip" data-min="45">45m Deep Exorcism</button>
+          <button class="preset-chip" data-min="5" style="border-color:var(--accent-secondary);">5m Crypt Rest</button>
+        </div>
+
+        <!-- Spooky Status Toast -->
+        <div class="altar-status-msg" id="altarStatus" aria-live="polite"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       TAB 2: THE CEMETERY YARD (BANISHED TASKS & GRAVESTONES)
+       ======================================================================== -->
+  <section class="view-section" id="viewGraveyard" role="tabpanel">
+    <div class="panel">
+      <div class="graveyard-controls">
+        <div>
+          <h2 class="panel-title"><span>🪦</span> The Hallowed Cemetery Ground</h2>
+          <p style="color:var(--ink-muted); font-size:0.85rem; margin:2px 0 0; font-family:var(--font-typewriter);">
+            Every banished spirit rests here in eternal repose.
+          </p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-pill" id="btnExportGraveyard">📥 Export Crypt Log (JSON)</button>
+          <button class="btn-pill" id="btnClearGraveyard" style="color:var(--blood-red); border-color:var(--blood-red);">⚠️ Clear Graves</button>
+        </div>
+      </div>
+
+      <!-- Cemetery Tombstone Grid -->
+      <div class="cemetery-grid" id="cemeteryGrid"></div>
+
+      <div class="empty-crypt" id="emptyGraveyardState" style="display:none;">
+        <div class="empty-icon">⚰️</div>
+        <h3>The Cemetery is Fresh and Empty</h3>
+        <p>No souls have been laid to rest yet. Finish a task in the Haunted List to build your first monument.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       TAB 3: AWS CLOUD TELEMETRY & ARCHITECTURE (Hack-to-Ween 2026 Showcase)
+       ======================================================================== -->
+  <section class="view-section" id="viewAws" role="tabpanel">
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title"><span>☁️</span> AWS Cloud Integration & Event Log</h2>
+        <span class="badge" style="background:#ff9900; color:#1a0c00; font-weight:700; padding:4px 10px; border-radius:999px;">
+          AWS Student Builder Group • IIT Jodhpur
+        </span>
+      </div>
+
+      <p style="color:var(--ink-muted); font-size:0.9rem;">
+        Graveyard Shift is designed to run as a cloud-native serverless solution for <strong>Hack-to-Ween 2026</strong>. 
+        Below is the proposed serverless architecture and a simulated event log (generated in the browser, not from a live AWS account).
+      </p>
+
+      <div class="aws-node" style="margin:14px 0;">
+        <div class="aws-node-title">🔌 Connect your AWS backend</div>
+        <div class="aws-node-desc" style="margin:6px 0 10px;">Paste the Function URL from your CloudFormation stack output. Spirits and graves then sync to Amazon DynamoDB through AWS Lambda, and banish incantations are voiced by Amazon Polly.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input id="awsUrlInput" class="filter-search" placeholder="https://xxxx.lambda-url.ap-southeast-2.on.aws/" style="flex:1 1 260px;">
+          <button class="btn-pill" id="btnAwsConnect">Connect</button>
+          <button class="btn-pill" id="btnAwsDisconnect">Disconnect</button>
+        </div>
+      </div>
+
+      <!-- Architecture Nodes -->
+      <div class="aws-architecture-grid">
+        <div class="aws-node">
+          <div class="aws-node-header">
+            <div class="aws-icon">⚡</div>
+            <div>
+              <div class="aws-node-title">AWS Lambda</div>
+              <small style="color:var(--ink-muted);">Serverless Exorcisms</small>
+            </div>
+          </div>
+          <div class="aws-node-desc">
+            Microservices handle <code>BanishSoulHandler</code>, <code>SeanceTelemetryHandler</code>, and boss HP calculations with sub-50ms execution times.
+          </div>
+        </div>
+
+        <div class="aws-node">
+          <div class="aws-node-header">
+            <div class="aws-icon">🗄️</div>
+            <div>
+              <div class="aws-node-title">Amazon DynamoDB</div>
+              <small style="color:var(--ink-muted);">Spirits & Graves Store</small>
+            </div>
+          </div>
+          <div class="aws-node-desc">
+            Single-table schema indexing active spirits (<code>PK: USER#id, SK: SPIRIT#id</code>) and archived tombstones with millisecond latency.
+          </div>
+        </div>
+
+        <div class="aws-node">
+          <div class="aws-node-header">
+            <div class="aws-icon">⏱️</div>
+            <div>
+              <div class="aws-node-title">Amazon EventBridge</div>
+              <small style="color:var(--ink-muted);">Midnight Witching Crons</small>
+            </div>
+          </div>
+          <div class="aws-node-desc">
+            Schedules daily exorcism reminders, midnight haunt digests, and auto-purges stale ectoplasmic cache.
+          </div>
+        </div>
+
+        <div class="aws-node">
+          <div class="aws-node-header">
+            <div class="aws-icon">📊</div>
+            <div>
+              <div class="aws-node-title">Amazon CloudWatch</div>
+              <small style="color:var(--ink-muted);">Haunt Observability</small>
+            </div>
+          </div>
+          <div class="aws-node-desc">
+            Tracks custom metrics: <code>SoulsBanishedCount</code>, <code>SeanceDurationMinutes</code>, and boss battle damage telemetry.
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time CloudWatch Log Stream Viewer -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+        <h3 style="font-size:1.05rem; margin:0; color:var(--ink); font-family:var(--font-typewriter);">
+          <span>📡</span> Simulated CloudWatch-style Event Log
+        </h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-pill" id="btnClearCwLogs">Clear Logs</button>
+          <span class="btn-pill" style="border-color:#38ef7d; color:#38ef7d;"><span id="awsBadgeText">● Local mode (AWS not connected)</span></span>
+        </div>
+      </div>
+
+      <div class="cloudwatch-terminal" id="cwTerminal" aria-live="polite">
+        <!-- Live simulated log stream inserts here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FOOTER & CREDITS
+       ========================================================================== -->
+  <footer class="app-footer">
+    <div>
+      🎃 <strong>Graveyard Shift</strong> · Built for <strong>Hack-to-Ween 2026</strong>
+    </div>
+    <div style="margin-top:4px; font-family:var(--font-typewriter); color:var(--ink-subtle);">
+      Organized by AWS Student Builder Group, IIT Jodhpur · October 31 – November 5, 2026
+    </div>
+    <div class="links">
+      <button class="link-btn" id="btnHackathonRules">Hackathon Guidelines</button>
+      <span>•</span>
+      <button class="link-btn" id="btnAwsModalFooter">Proposed AWS Architecture</button>
+      <span>•</span>
+      <button class="link-btn" id="btnGrimoireFooter">Necromancer Grimoire</button>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ==========================================================================
+     MODALS & FULLSCREEN OVERLAYS
+     ========================================================================== -->
+
+<!-- 1. Fullscreen Zen Focus Mode (Curse of Silence) -->
+<div class="zen-overlay" id="zenOverlay">
+  <div class="zen-title">CURSE OF SILENCE</div>
+  <div class="zen-task-name" id="zenTaskName">No spirit targeted</div>
+  <div class="zen-timer" id="zenTimer">25:00</div>
+  <div style="display:flex; gap:12px; margin-bottom:20px;">
+    <button class="btn-ritual primary" id="btnZenToggle">🔥 Pause Candle</button>
+    <button class="btn-exit-zen" id="btnZenExit">✕ Break the Curse (Exit)</button>
+  </div>
+  <p style="font-family:var(--font-typewriter); color:var(--ink-muted); font-size:0.85rem;">
+    Zero mortal distractions. Only the flame and your purpose.
+  </p>
+</div>
+
+<!-- 2. AWS Architecture & Guidelines Modal -->
+<div class="modal-overlay" id="awsModal">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3 class="modal-title"><span>☁️</span> Hack-to-Ween 2026 Architecture & Rules</h3>
+      <button class="modal-close" id="awsModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4 style="color:var(--accent); margin-top:0;">Hackathon Summary</h4>
+      <p style="color:var(--ink-muted); font-size:0.9rem;">
+        <strong>Hack-to-Ween 2026</strong> is a virtual Halloween-themed hackathon organized by the <strong>AWS Student Builder Group, IIT Jodhpur</strong>.
+        Participants build innovative solutions combining Halloween UI flair with technical excellence and AWS cloud integration.
+      </p>
+
+      <div style="background:#1b122e; border:1px solid var(--card-border); border-radius:var(--radius-md); padding:14px; margin:14px 0;">
+        <h5 style="color:var(--ghoul-green); margin:0 0 8px;">Judging Criteria Alignment:</h5>
+        <ul style="margin:0; padding-left:20px; color:var(--ink-muted); font-size:0.85rem; line-height:1.6;">
+          <li><strong>Halloween UI/UX:</strong> Eerie gothic typography, procedural Web Audio synthesizer, SVG melting candle, animated graveyard grounds, dynamic haunted themes.</li>
+          <li><strong>Innovation & Practical Value:</strong> Gamified focus tool transforming dread of overdue tasks into collectible soul banishments and tombstone monuments.</li>
+          <li><strong>AWS Integration:</strong> Architecture built on AWS Lambda, DynamoDB Single-Table Design, EventBridge cron exorcisms, CloudWatch metrics, and browser speech synthesis (Amazon Polly planned).</li>
+        </ul>
+      </div>
+
+      <h4 style="color:var(--accent-secondary); margin-bottom:8px;">Simulated CloudWatch-style Logs</h4>
+      <p style="color:var(--ink-muted); font-size:0.85rem;">
+        Every task summoned, session ignited, and spirit banished emits a log line in the style of Amazon CloudWatch (simulated in the browser).
+      </p>
+      <button class="btn-pill" id="btnJumpToTelemetry">Open CloudWatch Terminal Tab →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Grimoire & Achievements Modal -->
+<div class="modal-overlay" id="grimoireModal">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3 class="modal-title"><span>📜</span> Necromancer's Grimoire</h3>
+      <button class="modal-close" id="grimoireModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--ink-muted); font-size:0.9rem; margin-top:0;">
+        Prove your focus across the séance altar. Unlock ancient sigils by banishing tasks and conquering deep work rituals.
+      </p>
+      <div class="grimoire-grid" id="grimoireGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     AUDIO ENGINE, PROCEDURAL SYNTH & APPLICATION LOGIC
+     ========================================================================== -->
+<script>
+/**
+ * GRAVEYARD SHIFT - Core Application Logic
+ * Built for Hack-to-Ween 2026 | AWS Student Builder Group, IIT Jodhpur
+ */
+
+// 1. Spooky Procedural Web Audio Engine (100% Client-Side, No External Asset Dependencies)
+class SpookySoundEngine {
+  constructor() {
+    this.ctx = null;
+    this.isMuted = false;
+    this.masterGain = null;
+    this.ambientSource = null;
+    this.ambientGain = null;
+    this.currentAmbience = 'off';
+  }
+
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = this.isMuted ? 0 : 0.5;
+        this.masterGain.connect(this.ctx.destination);
+      }
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    if (this.masterGain) {
+      this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.5, this.ctx ? this.ctx.currentTime : 0);
+    }
+    return !this.isMuted;
+  }
+
+  // Sound: Striking match & candle ignite
+  playCandleIgnite() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Noise burst for match strike
+    const bufferSize = this.ctx.sampleRate * 0.25;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.15));
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1200, now);
+    filter.Q.setValueAtTime(3, now);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+    noise.start(now);
+  }
+
+  // Sound: Cathedral bell of doom / Séance completion
+  playBellOfDoom() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    const freqs = [216, 432, 654, 876];
+    freqs.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0.35 / (idx + 1), now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.5);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 3.6);
+    });
+  }
+
+  // Sound: Mystic soul banish whoosh & celestial minor chord
+  playSoulBanish() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Ethereal minor chord (A minor mystic)
+    const chord = [440, 523.25, 659.25, 830.61];
+    chord.forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.8);
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.2, now + 0.1 + i * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now + i * 0.05);
+      osc.stop(now + 1.3);
+    });
+  }
+
+  // Sound: Snuff candle whoosh
+  playCandleSnuff() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.28);
+
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }
+
+  // Ambient Soundscapes Synthesizer
+  setAmbience(type) {
+    this.currentAmbience = type;
+    if (this.ambientLfo) { try { this.ambientLfo.stop(); } catch (e) {} this.ambientLfo = null; }
+    if (this.ambientSource) {
+      try {
+        this.ambientSource.stop();
+        this.ambientSource.disconnect();
+      } catch(e) {}
+      this.ambientSource = null;
+    }
+    if (type === 'off') return;
+
+    this.init();
+    if (!this.ctx) return;
+
+    if (type === 'wind') {
+      // Wind generator: filtered brownian noise with slow LFO
+      const bufferSize = this.ctx.sampleRate * 4;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        data[i] = (lastOut + (0.02 * white)) / 1.02;
+        lastOut = data[i];
+        data[i] *= 3.5;
+      }
+
+      this.ambientSource = this.ctx.createBufferSource();
+      this.ambientSource.buffer = buffer;
+      this.ambientSource.loop = true;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 320;
+
+      // LFO for howling gusts
+      const lfo = this.ctx.createOscillator();
+      const lfoGain = this.ctx.createGain();
+      lfo.frequency.value = 0.2; // 5-second breath
+      lfoGain.gain.value = 220;
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+      lfo.start();
+      this.ambientLfo = lfo;
+
+      this.ambientGain = this.ctx.createGain();
+      this.ambientGain.gain.value = 0.28;
+
+      this.ambientSource.connect(filter);
+      filter.connect(this.ambientGain);
+      this.ambientGain.connect(this.masterGain);
+      this.ambientSource.start();
+
+    } else if (type === 'rain') {
+      // Midnight Rain: soft pink noise
+      const bufferSize = this.ctx.sampleRate * 2;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        data[i] = (b0 + b1 + b2) * 0.3;
+      }
+      this.ambientSource = this.ctx.createBufferSource();
+      this.ambientSource.buffer = buffer;
+      this.ambientSource.loop = true;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 800;
+
+      this.ambientGain = this.ctx.createGain();
+      this.ambientGain.gain.value = 0.22;
+
+      this.ambientSource.connect(filter);
+      filter.connect(this.ambientGain);
+      this.ambientGain.connect(this.masterGain);
+      this.ambientSource.start();
+
+    } else if (type === 'crypt') {
+      // Crypt Drone: low detuned twin sine oscillators
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      osc1.type = 'sine';
+      osc2.type = 'sawtooth';
+      osc1.frequency.value = 55;   // Low A
+      osc2.frequency.value = 55.4; // Detuned
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 160;
+
+      this.ambientGain = this.ctx.createGain();
+      this.ambientGain.gain.value = 0.15;
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(this.ambientGain);
+      this.ambientGain.connect(this.masterGain);
+
+      osc1.start();
+      osc2.start();
+      this.ambientSource = {
+        stop: () => {
+          osc1.stop();
+          osc2.stop();
+        },
+        disconnect: () => {
+          osc1.disconnect();
+          osc2.disconnect();
+        }
+      };
+    }
+  }
+
+  // AWS Polly Voice incantation (Web Speech API integration)
+  speakPollyIncantation(text) {
+    if (this.isMuted || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.pitch = 0.65; // Deep spooky pitch
+      utterance.rate = 0.88;  // Deliberate, ritualistic pace
+      window.speechSynthesis.speak(utterance);
+    } catch(e) {}
+  }
+}
+
+// 2. Interactive Background Fog & Particle Canvas
+class SpookyCanvasAtmosphere {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.wisps = [];
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.initWisps();
+    this.animate();
+  }
+
+  resize() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+
+  initWisps() {
+    const count = Math.floor(window.innerWidth / 45);
+    this.wisps = [];
+    for (let i = 0; i < count; i++) {
+      this.wisps.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        radius: Math.random() * 2.8 + 1,
+        speedY: -(Math.random() * 0.4 + 0.15),
+        speedX: (Math.random() - 0.5) * 0.3,
+        alpha: Math.random() * 0.6 + 0.2,
+        color: Math.random() > 0.4 ? 'rgba(255, 122, 26,' : 'rgba(164, 92, 255,'
+      });
+    }
+  }
+
+  animate() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    for (let w of this.wisps) {
+      w.y += w.speedY;
+      w.x += w.speedX;
+      if (w.y < -10) {
+        w.y = this.canvas.height + 10;
+        w.x = Math.random() * this.canvas.width;
+      }
+      this.ctx.beginPath();
+      this.ctx.arc(w.x, w.y, w.radius, 0, Math.PI * 2);
+      this.ctx.fillStyle = `${w.color}${w.alpha})`;
+      this.ctx.shadowBlur = 12;
+      this.ctx.shadowColor = w.color.includes('255') ? '#ff7a1a' : '#a45cff';
+      this.ctx.fill();
+    }
+
+    requestAnimationFrame(() => this.animate());
+  }
+}
+
+// 3. Application State & Storage
+const STORAGE_KEY = 'graveyard_shift_hacktoween_2026';
+
+const DEFAULT_STATE = {
+  tasks: [],
+  graveyard: [],
+  activeTaskId: null,
+  totalBanished: 0,
+  totalMinutes: 0,
+  xp: 0,
+  streak: 1,
+  theme: 'pumpkin',
+  soundOn: true,
+  ambience: 'off',
+  achievements: {
+    first_blood: false,
+    demon_slayer: false,
+    boss_vanquished: false,
+    deep_seance: false,
+    graveyard_architect: false,
+    master_medium: false
+  }
+};
+
+const ACHIEVEMENTS_DATA = [
+  { id: 'first_blood', icon: '🩸', title: 'First Banishment', desc: 'Banish your first restless soul to the crypt.' },
+  { id: 'demon_slayer', icon: '💀', title: 'Demon Slayer', desc: 'Banish a high-level Demon spirit.' },
+  { id: 'boss_vanquished', icon: '👑', title: 'Titan\'s Demise', desc: 'Slay an Arch-Demon Nightmare Boss.' },
+  { id: 'deep_seance', icon: '🕯️', title: 'Midnight Oil', desc: 'Complete a 45-minute Deep Exorcism.' },
+  { id: 'graveyard_architect', icon: '🪦', title: 'Crypt Architect', desc: 'Lay 5 or more monuments in the Cemetery.' },
+  { id: 'master_medium', icon: '🧙‍♂️', title: 'Grand Necromancer', desc: 'Reach Level 4 (Master Exorcist) at 450 XP.' }
+];
+
+const EPITAPHS = [
+  "Rest in peace, never to raise merge conflicts again.",
+  "Here lies the stubborn bug that vanished after adding a print statement.",
+  "Banished into the dark void of git stash.",
+  "Vanquished after a 25-minute deep focus séance.",
+  "Fell in valiant combat during Hack-to-Ween 2026.",
+  "Buried under 100 lines of clean, modular code.",
+  "Archived eternally in Amazon S3 Glacier Deep Archive.",
+  "Slain by relentless focus before dawn broke."
+];
+
+// Helper: Query selector
+const $ = (id) => document.getElementById(id);
+
+// 4. Main Application Controller
+class GraveyardShiftApp {
+  constructor() {
+    this.sound = new SpookySoundEngine();
+    this.loadState();
+    this.initCanvas();
+    this.bindDomElements();
+    this.bindEvents();
+    this.initTimer();
+    this.render();
+    this.awsInit();
+    this.emitCloudWatchLog('INIT', 'Graveyard Shift application initialized. Running with a simulated telemetry log (no live AWS connection).');
+  }
+
+  loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      this.state = raw ? Object.assign({}, DEFAULT_STATE, JSON.parse(raw)) : Object.assign({}, DEFAULT_STATE);
+      if (!Array.isArray(this.state.tasks)) this.state.tasks = [];
+      if (!Array.isArray(this.state.graveyard)) this.state.graveyard = [];
+      const today = new Date().toDateString();
+      if (this.state.lastActive !== today) {
+        const y = new Date(Date.now() - 864e5).toDateString();
+        this.state.streak = this.state.lastActive === y ? (this.state.streak || 0) + 1 : 1;
+        this.state.lastActive = today;
+      }
+    } catch (e) {
+      this.state = Object.assign({}, DEFAULT_STATE);
+    }
+  }
+
+  saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      this.awsSave();
+    } catch (e) {}
+  }
+
+  initCanvas() {
+    this.atmosphere = new SpookyCanvasAtmosphere('fogCanvas');
+  }
+
+  bindDomElements() {
+    // Form & Lists
+    this.summonForm = $('summonForm');
+    this.taskInput = $('taskInput');
+    this.taskRealm = $('taskRealm');
+    this.taskLevel = $('taskLevel');
+    this.hauntList = $('hauntList');
+    this.emptyState = $('emptyState');
+    this.bossBanner = $('bossBanner');
+
+    // Cemetery
+    this.cemeteryGrid = $('cemeteryGrid');
+    this.emptyGraveyardState = $('emptyGraveyardState');
+
+    // Altar & Timer
+    this.runeProgress = $('runeProgress');
+    this.timerDisplay = $('timerDisplay');
+    this.candleFlame = $('candleFlame');
+    this.candleGlow = $('candleGlow');
+    this.candleWax = $('candleWax');
+    this.btnToggleSeance = $('btnToggleSeance');
+    this.btnResetSeance = $('btnResetSeance');
+    this.targetBanner = $('targetBanner');
+    this.altarStatus = $('altarStatus');
+    this.seanceBtnText = $('seanceBtnText');
+    this.seanceIcon = $('seanceIcon');
+
+    // Stats & XP
+    this.statBanished = $('statBanished');
+    this.statHaunting = $('statHaunting');
+    this.statMinutes = $('statMinutes');
+    this.statStreak = $('statStreak');
+    this.hunterRankTitle = $('hunterRankTitle');
+    this.hunterRankLevel = $('hunterRankLevel');
+    this.xpBarFill = $('xpBarFill');
+    this.xpText = $('xpText');
+    this.activeTaskCount = $('activeTaskCount');
+    this.banishedCount = $('banishedCount');
+
+    // Controls
+    this.btnMuteAudio = $('btnMuteAudio');
+    this.selectAmbience = $('selectAmbience');
+    this.selectTheme = $('selectTheme');
+    this.cwTerminal = $('cwTerminal');
+  }
+
+  bindEvents() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+        this.exitZenMode();
+      }
+    });
+
+    // Task Submission
+    this.summonForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.summonSpirit();
+    });
+
+    // Preset chips
+    document.querySelectorAll('.preset-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.preset-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const min = parseInt(btn.dataset.min, 10);
+        this.setTimerPreset(min);
+      });
+    });
+
+    // Timer controls
+    this.btnToggleSeance.addEventListener('click', () => this.toggleSeance());
+    this.btnResetSeance.addEventListener('click', () => this.resetSeance());
+
+    // Navigation Tabs
+    $('tabTasksBtn').addEventListener('click', () => this.switchTab('viewTasks', 'tabTasksBtn'));
+    $('tabGraveyardBtn').addEventListener('click', () => this.switchTab('viewGraveyard', 'tabGraveyardBtn'));
+    $('tabAwsBtn').addEventListener('click', () => this.switchTab('viewAws', 'tabAwsBtn'));
+
+    // Audio & Ambience
+    this.btnMuteAudio.addEventListener('click', () => {
+      const unmuted = this.sound.toggleMute();
+      $('muteIcon').textContent = unmuted ? '🔊' : '🔇';
+      $('muteText').textContent = unmuted ? 'Audio ON' : 'Audio MUTED';
+      this.showToast(unmuted ? 'Audio unmuted' : 'Audio muted');
+    });
+
+    this.selectAmbience.addEventListener('change', (e) => {
+      this.sound.setAmbience(e.target.value);
+      this.emitCloudWatchLog('AUDIO', `Ambient soundscape shifted to: ${e.target.value}`);
+    });
+
+    // Theme selector
+    this.selectTheme.addEventListener('change', (e) => {
+      const t = e.target.value;
+      document.body.setAttribute('data-theme', t);
+      this.state.theme = t;
+      this.saveState();
+      this.emitCloudWatchLog('CONFIG', `UI theme profile updated to ${t}`);
+    });
+    if (this.state.theme) {
+      this.selectTheme.value = this.state.theme;
+      document.body.setAttribute('data-theme', this.state.theme);
+    }
+
+    // Focus Boss Button
+    const btnFocusBoss = $('btnFocusBoss');
+    if (btnFocusBoss) {
+      btnFocusBoss.addEventListener('click', () => {
+        const boss = this.state.tasks.find(s => s.level === 'boss');
+        if (boss) {
+          this.state.activeTaskId = boss.id;
+          this.saveState();
+          this.render();
+          this.showToast(`⚔️ Targeted Arch-Demon: "${boss.title}"`);
+        }
+      });
+    }
+
+    // Filter Buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.renderTaskList(btn.dataset.filter, $('taskSearch').value.trim());
+      });
+    });
+    $('taskSearch').addEventListener('input', (e) => {
+      const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+      this.renderTaskList(activeFilter, e.target.value.trim());
+    });
+
+    // Seed Demo Data
+    $('btnSeedDemo').addEventListener('click', () => this.seedDemoData());
+    $('btnEmptySeed').addEventListener('click', () => this.seedDemoData());
+
+    // Modals
+    $('btnAwsArchOpen').addEventListener('click', () => $('awsModal').classList.add('open'));
+    $('awsModalClose').addEventListener('click', () => $('awsModal').classList.remove('open'));
+    $('btnAwsModalFooter').addEventListener('click', () => $('awsModal').classList.add('open'));
+    $('btnHackathonRules').addEventListener('click', () => $('awsModal').classList.add('open'));
+    $('btnJumpToTelemetry').addEventListener('click', () => {
+      $('awsModal').classList.remove('open');
+      this.switchTab('viewAws', 'tabAwsBtn');
+    });
+
+    $('btnGrimoireOpen').addEventListener('click', () => {
+      this.renderGrimoire();
+      $('grimoireModal').classList.add('open');
+    });
+    $('grimoireModalClose').addEventListener('click', () => $('grimoireModal').classList.remove('open'));
+    $('btnGrimoireFooter').addEventListener('click', () => {
+      this.renderGrimoire();
+      $('grimoireModal').classList.add('open');
+    });
+
+    // Zen Mode (Curse of Silence)
+    $('btnZenEnter').addEventListener('click', () => this.enterZenMode());
+    $('btnZenExit').addEventListener('click', () => this.exitZenMode());
+    $('btnZenToggle').addEventListener('click', () => this.toggleSeance());
+
+    // Cemetery export & clear
+    $('btnExportGraveyard').addEventListener('click', () => this.exportGraveyard());
+    $('btnClearGraveyard').addEventListener('click', () => {
+      if (confirm('Are you sure you wish to consecrate the graveyard and clear all monuments?')) {
+        this.state.graveyard = [];
+        this.saveState();
+        this.render();
+        this.emitCloudWatchLog('CRYPT', 'Graveyard consecrated and cleared.');
+      }
+    });
+
+    $('btnClearCwLogs').addEventListener('click', () => {
+      this.cwTerminal.innerHTML = '';
+      this.emitCloudWatchLog('CLEAR', 'Terminal buffer cleared.');
+    });
+  }
+
+  switchTab(tabId, btnId) {
+    document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-selected', 'false');
+    });
+
+    $(tabId).classList.add('active');
+    $(btnId).classList.add('active');
+    $(btnId).setAttribute('aria-selected', 'true');
+
+    if (tabId === 'viewGraveyard') this.renderCemetery();
+  }
+
+  // Task Summoning
+  summonSpirit() {
+    const text = this.taskInput.value.trim();
+    if (!text) return;
+
+    const realm = this.taskRealm.value;
+    const levelVal = this.taskLevel.value;
+    const isBoss = levelVal === 'boss';
+
+    const newSpirit = {
+      id: 'sp-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+      title: text,
+      realm: realm,
+      level: isBoss ? 'boss' : parseInt(levelVal, 10),
+      createdAt: new Date().toISOString(),
+      hp: isBoss ? 100 : null,
+      maxHp: isBoss ? 100 : null
+    };
+
+    this.state.tasks.unshift(newSpirit);
+    if (!this.state.activeTaskId) {
+      this.state.activeTaskId = newSpirit.id;
+    }
+
+    this.taskInput.value = '';
+    this.saveState();
+    this.render();
+
+    this.sound.playCandleIgnite();
+    this.showToast(`✨ Summoned: "${text}"`);
+    this.emitCloudWatchLog('SUMMON', `[Simulated] POST /spirits [201 Created] spiritId="${newSpirit.id}" level="${newSpirit.level}" realm="${newSpirit.realm}"`);
+  }
+
+  // Banish a soul (Completed)
+  banishSoul(spiritId, itemEl) {
+    const spirit = this.state.tasks.find(s => s.id === spiritId);
+    if (!spirit) return;
+
+    if (itemEl) itemEl.classList.add('banishing');
+    this.sound.playSoulBanish();
+
+    setTimeout(() => {
+      // Remove from active tasks
+      this.state.tasks = this.state.tasks.filter(s => s.id !== spiritId);
+      if (this.state.activeTaskId === spiritId) {
+        this.state.activeTaskId = this.state.tasks[0]?.id || null;
+      }
+
+      // Add to Graveyard
+      const epitaph = EPITAPHS[Math.floor(Math.random() * EPITAPHS.length)];
+      const tombstone = {
+        id: 'tomb-' + Date.now(),
+        originalId: spirit.id,
+        title: spirit.title,
+        realm: spirit.realm,
+        level: spirit.level,
+        banishedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + new Date().toLocaleDateString(),
+        epitaph: epitaph
+      };
+      this.state.graveyard.unshift(tombstone);
+
+      // Increment stats & XP
+      this.state.totalBanished++;
+      const xpGained = spirit.level === 'boss' ? 150 : (spirit.level * 25);
+      this.addXp(xpGained);
+
+      // Check achievements
+      this.checkAchievements(spirit);
+
+      this.saveState();
+      this.render();
+
+      this.speakWithPolly(`${spirit.title} is banished to the crypt.`);
+      this.showToast(`🪦 Rest in peace: "${spirit.title}" (+${xpGained} XP)`);
+      this.emitCloudWatchLog('BANISH', `[Simulated] Spirit banished (would invoke Lambda BanishSoul and write a tombstone to DynamoDB). XP: +${xpGained}`);
+    }, 600);
+  }
+
+  // Resurrect a soul from the graveyard
+  resurrectSoul(tombId) {
+    const tomb = this.state.graveyard.find(g => g.id === tombId);
+    if (!tomb) return;
+
+    this.state.graveyard = this.state.graveyard.filter(g => g.id !== tombId);
+    const revivedSpirit = {
+      id: tomb.originalId || ('sp-' + Date.now()),
+      title: tomb.title,
+      realm: tomb.realm,
+      level: tomb.level,
+      createdAt: new Date().toISOString(),
+      hp: tomb.level === 'boss' ? 100 : null,
+      maxHp: tomb.level === 'boss' ? 100 : null
+    };
+
+    this.state.tasks.unshift(revivedSpirit);
+    this.state.activeTaskId = revivedSpirit.id;
+    this.saveState();
+    this.render();
+
+    this.sound.playCandleIgnite();
+    this.showToast(`🧟 Resurrected from the grave: "${revivedSpirit.title}"`);
+    this.emitCloudWatchLog('RESURRECT', `Spirit resurrected from Crypt: "${revivedSpirit.title}"`);
+  }
+
+  deleteSoul(spiritId) {
+    this.state.tasks = this.state.tasks.filter(s => s.id !== spiritId);
+    if (this.state.activeTaskId === spiritId) {
+      this.state.activeTaskId = this.state.tasks[0]?.id || null;
+    }
+    this.saveState();
+    this.render();
+  }
+
+  // XP & Necromancer Rank System
+  addXp(amount) {
+    this.state.xp += amount;
+    const ranks = [
+      { level: 1, title: 'Novice Medium', minXp: 0, maxXp: 100 },
+      { level: 2, title: 'Crypt Seeker', minXp: 100, maxXp: 250 },
+      { level: 3, title: 'Ghost Whisperer', minXp: 250, maxXp: 450 },
+      { level: 4, title: 'Master Exorcist', minXp: 450, maxXp: 750 },
+      { level: 5, title: 'Grand Necromancer', minXp: 750, maxXp: 1200 }
+    ];
+
+    let current = ranks[0];
+    for (let r of ranks) {
+      if (this.state.xp >= r.minXp) current = r;
+    }
+
+    if (current.level >= 4 && !this.state.achievements.master_medium) {
+      this.state.achievements.master_medium = true;
+    }
+  }
+
+  checkAchievements(banishedSpirit) {
+    const a = this.state.achievements;
+    if (!a.first_blood && this.state.totalBanished >= 1) {
+      a.first_blood = true;
+      this.showAchievementUnlocked('First Banishment');
+    }
+    if (!a.demon_slayer && banishedSpirit.level === 3) {
+      a.demon_slayer = true;
+      this.showAchievementUnlocked('Demon Slayer');
+    }
+    if (!a.boss_vanquished && banishedSpirit.level === 'boss') {
+      a.boss_vanquished = true;
+      this.showAchievementUnlocked('Titan\'s Demise');
+    }
+    if (!a.graveyard_architect && this.state.graveyard.length >= 5) {
+      a.graveyard_architect = true;
+      this.showAchievementUnlocked('Crypt Architect');
+    }
+  }
+
+  showAchievementUnlocked(title) {
+    this.showToast(`🏆 Sigil Unlocked: ${title}!`);
+    this.emitCloudWatchLog('ACHIEVEMENT', `Necromancer sigil unlocked: [${title}]`);
+  }
+
+  // Timer & Séance Engine
+  initTimer() {
+    this.totalSeconds = 25 * 60;
+    this.remainingSeconds = this.totalSeconds;
+    this.timerInterval = null;
+    this.circumference = 2 * Math.PI * 110; // SVG circle radius 110
+    this.updateTimerUi();
+  }
+
+  setTimerPreset(minutes) {
+    this.pauseSeance();
+    this.totalSeconds = minutes * 60;
+    this.remainingSeconds = this.totalSeconds;
+    this.updateTimerUi();
+    this.showToast(`Séance timer set to ${minutes} minutes`);
+    this.emitCloudWatchLog('TIMER', `Séance ritual preset adjusted: ${minutes} min`);
+  }
+
+  toggleSeance() {
+    if (this.timerInterval) {
+      this.pauseSeance();
+    } else {
+      this.startSeance();
+    }
+  }
+
+  startSeance() {
+    this.sound.init();
+    this.sound.playCandleIgnite();
+
+    if (this.remainingSeconds <= 0) {
+      this.remainingSeconds = this.totalSeconds;
+    }
+
+    this.candleFlame.classList.add('burning');
+    this.candleGlow.style.opacity = '1';
+    this.seanceBtnText.textContent = 'Pause Séance';
+    this.seanceIcon.textContent = '⏸️';
+    $('btnZenToggle').textContent = '⏸️ Pause Candle';
+
+    const activeTask = this.state.tasks.find(s => s.id === this.state.activeTaskId);
+    const targetName = activeTask ? activeTask.title : 'Unfocused focus';
+    this.altarStatus.textContent = `The séance begins. Purging: "${targetName}"...`;
+
+    this.timerInterval = setInterval(() => {
+      this.remainingSeconds--;
+      this.updateTimerUi();
+
+      if (this.remainingSeconds <= 0) {
+        this.completeSeance();
+      }
+    }, 1000);
+
+    this.emitCloudWatchLog('SEANCE', `[Simulated] Séance session ignited for spirit="${targetName}"`);
+  }
+
+  pauseSeance() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    this.sound.playCandleSnuff();
+    this.candleFlame.classList.remove('burning');
+    this.candleGlow.style.opacity = '0';
+    this.seanceBtnText.textContent = 'Light the Candle';
+    this.seanceIcon.textContent = '🔥';
+    $('btnZenToggle').textContent = '🔥 Resume Candle';
+    this.altarStatus.textContent = 'Candle paused. The crypt holds its breath...';
+    this.updateTimerUi();
+  }
+
+  resetSeance() {
+    this.pauseSeance();
+    this.remainingSeconds = this.totalSeconds;
+    this.updateTimerUi();
+    this.altarStatus.textContent = 'The candle has been snuffed out.';
+  }
+
+  completeSeance() {
+    this.pauseSeance();
+    this.sound.playBellOfDoom();
+
+    const seanceMinutes = Math.round(this.totalSeconds / 60);
+    const isRest = seanceMinutes < 10;
+    if (!isRest) {
+      this.state.totalMinutes += seanceMinutes;
+      this.addXp(seanceMinutes * 2);
+    }
+
+    if (seanceMinutes >= 45 && !this.state.achievements.deep_seance) {
+      this.state.achievements.deep_seance = true;
+      this.showAchievementUnlocked('Midnight Oil');
+    }
+
+    // Rest sessions never touch your tasks
+    if (isRest) {
+      this.altarStatus.textContent = '🕯️ Rest complete. Your targeted spirit is untouched.';
+      this.saveState();
+      this.render();
+      this.remainingSeconds = this.totalSeconds;
+      this.updateTimerUi();
+      return;
+    }
+    // Check targeted task
+    const activeTask = this.state.tasks.find(s => s.id === this.state.activeTaskId);
+    if (activeTask) {
+      if (activeTask.level === 'boss') {
+        // Deal 35 HP damage to Boss
+        activeTask.hp = Math.max(0, activeTask.hp - 35);
+        if (activeTask.hp === 0) {
+          this.banishSoul(activeTask.id);
+          this.altarStatus.textContent = `👑 Arch-Demon vanquished! Complete triumph!`;
+        } else {
+          this.altarStatus.textContent = `⚔️ Dealt 35 damage to ${activeTask.title}! Remaining HP: ${activeTask.hp}`;
+        }
+      } else {
+        this.banishSoul(activeTask.id);
+        this.altarStatus.textContent = `✨ Séance complete. ${activeTask.title} banished to the crypt!`;
+      }
+    } else {
+      this.altarStatus.textContent = `🔮 Séance complete. ${seanceMinutes} minutes of deep focus logged!`;
+    }
+
+    this.saveState();
+    this.render();
+    this.remainingSeconds = this.totalSeconds;
+    this.updateTimerUi();
+
+    this.emitCloudWatchLog('METRIC', `[Simulated] PutMetricData Namespace=HackToWeen Metric=SeanceDurationMinutes Value=${seanceMinutes}`);
+  }
+
+  updateTimerUi() {
+    const mins = Math.floor(this.remainingSeconds / 60);
+    const secs = this.remainingSeconds % 60;
+    const formatted = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+    this.timerDisplay.textContent = formatted;
+    $('zenTimer').textContent = formatted;
+    document.title = (this.timerInterval ? `(${formatted}) ` : '') + 'Graveyard Shift – Hack-to-Ween 2026';
+
+    // Update Rune Progress Arc
+    const progressFraction = 1 - (this.remainingSeconds / this.totalSeconds);
+    const offset = this.circumference * (1 - progressFraction);
+    this.runeProgress.style.strokeDashoffset = offset;
+
+    // Wax melts down based on progress (70px max to 20px min)
+    const waxHeight = Math.max(20, 70 - (progressFraction * 45));
+    this.candleWax.style.height = `${waxHeight}px`;
+  }
+
+  // Zen Mode (Curse of Silence)
+  enterZenMode() {
+    const activeTask = this.state.tasks.find(s => s.id === this.state.activeTaskId);
+    $('zenTaskName').textContent = activeTask ? `Banishing: "${activeTask.title}"` : 'General Focus Séance';
+    $('zenOverlay').classList.add('active');
+    if (!this.timerInterval) this.startSeance();
+  }
+
+  exitZenMode() {
+    $('zenOverlay').classList.remove('active');
+  }
+
+  // Rendering
+  render() {
+    this.renderStats();
+    this.renderTaskList();
+    this.renderCemetery();
+    this.updateTargetBanner();
+  }
+
+  renderStats() {
+    const openCount = this.state.tasks.length;
+    this.statBanished.textContent = this.state.totalBanished;
+    this.statHaunting.textContent = openCount;
+    this.statMinutes.textContent = this.state.totalMinutes;
+    this.statStreak.innerHTML = `${this.state.streak} <span style="font-size:1rem;color:var(--ink-muted);">days</span>`;
+
+    this.activeTaskCount.textContent = openCount;
+    this.banishedCount.textContent = this.state.graveyard.length;
+
+    // Ranks & XP
+    const ranks = [
+      { level: 1, title: 'Novice Medium', minXp: 0, maxXp: 100 },
+      { level: 2, title: 'Crypt Seeker', minXp: 100, maxXp: 250 },
+      { level: 3, title: 'Ghost Whisperer', minXp: 250, maxXp: 450 },
+      { level: 4, title: 'Master Exorcist', minXp: 450, maxXp: 750 },
+      { level: 5, title: 'Grand Necromancer', minXp: 750, maxXp: 1200 }
+    ];
+
+    let current = ranks[0];
+    let next = ranks[1];
+    for (let i = 0; i < ranks.length; i++) {
+      if (this.state.xp >= ranks[i].minXp) {
+        current = ranks[i];
+        next = ranks[i + 1] || ranks[i];
+      }
+    }
+
+    this.hunterRankTitle.textContent = current.title;
+    this.hunterRankLevel.textContent = `LVL ${current.level}`;
+
+    const range = next.maxXp - current.minXp;
+    const progress = Math.min(100, Math.max(0, ((this.state.xp - current.minXp) / range) * 100));
+    this.xpBarFill.style.width = `${progress}%`;
+    this.xpText.textContent = `${this.state.xp} / ${next.maxXp} XP`;
+  }
+
+  renderTaskList(filter = null, searchQuery = null) {
+    if (filter === null) {
+      filter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+    }
+    if (searchQuery === null) {
+      searchQuery = $('taskSearch') ? $('taskSearch').value.trim() : '';
+    }
+    this.hauntList.innerHTML = '';
+
+    // Check Boss Spirit
+    const boss = this.state.tasks.find(s => s.level === 'boss');
+    if (boss) {
+      this.bossBanner.classList.add('active');
+      $('bossName').textContent = boss.title;
+      $('bossHpText').textContent = `${boss.hp} / ${boss.maxHp} HP`;
+      const hpPercent = (boss.hp / boss.maxHp) * 100;
+      $('bossHpFill').style.width = `${hpPercent}%`;
+    } else {
+      this.bossBanner.classList.remove('active');
+    }
+
+    let filtered = this.state.tasks.slice();
+
+    if (filter !== 'all') {
+      filtered = filtered.filter(s => s.level.toString() === filter);
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(s => s.title.toLowerCase().includes(q) || s.realm.toLowerCase().includes(q));
+    }
+
+    if (filtered.length === 0) {
+      this.emptyState.style.display = 'block';
+      return;
+    } else {
+      this.emptyState.style.display = 'none';
+    }
+
+    const realmIcons = {
+      code: '💻 Code',
+      aws: '☁️ AWS',
+      bug: '🐛 Bug',
+      design: '🎨 Design',
+      docs: '📜 Docs',
+      life: '🔮 Mortal'
+    };
+
+    const levelDetails = {
+      1: { name: 'Poltergeist', icon: '👻', color: '#4eed99' },
+      2: { name: 'Zombie', icon: '🧟', color: '#ff7a1a' },
+      3: { name: 'Demon', icon: '💀', color: '#ff3b5c' },
+      boss: { name: 'Nightmare Boss', icon: '👑', color: '#ff2d55' }
+    };
+
+    filtered.forEach(spirit => {
+      const li = document.createElement('li');
+      li.className = 'soul-item' + (this.state.activeTaskId === spirit.id ? ' active-haunt' : '');
+
+      const lvl = levelDetails[spirit.level] || levelDetails[1];
+      li.style.setProperty('--spirit-color', lvl.color);
+
+      li.innerHTML = `
+        <div class="soul-avatar" title="${lvl.name}">${lvl.icon}</div>
+        <div class="soul-content">
+          <div class="soul-title">${this.escapeHtml(spirit.title)}</div>
+          <div class="soul-meta">
+            <span class="meta-tag meta-level" style="color:${lvl.color}">${lvl.name}</span>
+            <span class="meta-tag">${realmIcons[spirit.realm] || '🔮 Other'}</span>
+            ${spirit.level === 'boss' ? `<span class="meta-tag" style="color:#ff8fa3;">HP: ${spirit.hp}/${spirit.maxHp}</span>` : ''}
+          </div>
+        </div>
+        <div class="soul-actions">
+          <button class="btn-haunt" title="Target this spirit with the focus candle">
+            <span>🕯️</span> Haunt
+          </button>
+          <button class="btn-banish" title="Mark this task as banished">
+            Banish
+          </button>
+          <button class="btn-delete" title="Dismiss soul">✕</button>
+        </div>
+      `;
+
+      li.querySelector('.btn-haunt').addEventListener('click', () => {
+        this.state.activeTaskId = spirit.id;
+        this.saveState();
+        this.render();
+        this.showToast(`Targeting: "${spirit.title}"`);
+      });
+
+      li.querySelector('.btn-banish').addEventListener('click', () => {
+        this.banishSoul(spirit.id, li);
+      });
+
+      li.querySelector('.btn-delete').addEventListener('click', () => {
+        this.deleteSoul(spirit.id);
+      });
+
+      this.hauntList.appendChild(li);
+    });
+  }
+
+  renderCemetery() {
+    this.cemeteryGrid.innerHTML = '';
+    const items = this.state.graveyard;
+
+    if (items.length === 0) {
+      this.emptyGraveyardState.style.display = 'block';
+      return;
+    } else {
+      this.emptyGraveyardState.style.display = 'none';
+    }
+
+    items.forEach(tomb => {
+      const card = document.createElement('div');
+      card.className = 'tombstone-card';
+      card.innerHTML = `
+        <div>
+          <div class="tombstone-cross">✝</div>
+          <div class="tombstone-rip">R . I . P</div>
+          <div class="tombstone-title">${this.escapeHtml(tomb.title)}</div>
+          <div class="tombstone-epitaph">"${this.escapeHtml(tomb.epitaph || 'Rest in peace.')}"</div>
+        </div>
+        <div class="tombstone-footer">
+          <span>${tomb.banishedAt || 'Midnight'}</span>
+          <button class="btn-resurrect" title="Resurrect spirit back to task list">Resurrect</button>
+        </div>
+      `;
+
+      card.querySelector('.btn-resurrect').addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.resurrectSoul(tomb.id);
+      });
+
+      this.cemeteryGrid.appendChild(card);
+    });
+  }
+
+  renderGrimoire() {
+    const grid = $('grimoireGrid');
+    grid.innerHTML = '';
+
+    ACHIEVEMENTS_DATA.forEach(ach => {
+      const isUnlocked = !!this.state.achievements[ach.id];
+      const card = document.createElement('div');
+      card.className = `badge-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+      card.innerHTML = `
+        <div class="badge-icon">${ach.icon}</div>
+        <div class="badge-info">
+          <h4>${ach.title} ${isUnlocked ? '✓' : '🔒'}</h4>
+          <p>${ach.desc}</p>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  updateTargetBanner() {
+    const active = this.state.tasks.find(s => s.id === this.state.activeTaskId);
+    if (active) {
+      this.targetBanner.innerHTML = `<span>🕯️ Currently Banishing: <strong>${this.escapeHtml(active.title)}</strong></span>`;
+    } else {
+      this.targetBanner.innerHTML = `<span>🕯️ No spirit targeted. Pick a task from the list to aim your séance.</span>`;
+    }
+  }
+
+  awsUrl() {
+    try { return (localStorage.getItem('gs_aws_url') || window.GS_AWS_URL || '').replace(/\/+$/, ''); } catch (e) { return ''; }
+  }
+
+  awsUid() {
+    let u = 'demo';
+    try {
+      u = localStorage.getItem('gs_uid');
+      if (!u) { u = 'u-' + Math.random().toString(36).slice(2, 10); localStorage.setItem('gs_uid', u); }
+    } catch (e) {}
+    return u;
+  }
+
+  setAwsBadge(ok, text) {
+    const t = $('awsBadgeText');
+    if (!t) return;
+    t.textContent = text;
+    t.parentElement.style.color = ok ? '#38ef7d' : '#e3b341';
+    t.parentElement.style.borderColor = ok ? '#38ef7d' : '#e3b341';
+  }
+
+  async awsInit() {
+    const input = $('awsUrlInput');
+    if (input) input.value = this.awsUrl();
+    $('btnAwsConnect').addEventListener('click', () => this.awsConnect());
+    $('btnAwsDisconnect').addEventListener('click', () => {
+      try { localStorage.removeItem('gs_aws_url'); } catch (e) {}
+      if (input) input.value = '';
+      this.setAwsBadge(false, '● Local mode (AWS not connected)');
+      this.showToast('Disconnected from AWS. Data stays in this browser.');
+    });
+    if (this.awsUrl()) await this.awsPull();
+  }
+
+  async awsConnect() {
+    const v = $('awsUrlInput').value.trim().replace(/\/+$/, '');
+    if (!/^https:\/\//.test(v)) { this.showToast('Paste the full https:// Function URL'); return; }
+    try { localStorage.setItem('gs_aws_url', v); } catch (e) {}
+    await this.awsPull();
+  }
+
+  async awsPull() {
+    try {
+      const res = await fetch(this.awsUrl() + '/?user=' + encodeURIComponent(this.awsUid()));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const j = await res.json();
+      this.setAwsBadge(true, '● Connected: Lambda + DynamoDB + Polly');
+      this.emitCloudWatchLog('AWS', 'GET /state → Lambda → DynamoDB OK');
+      const local = this.state;
+      const localEmpty = !local.tasks.length && !local.graveyard.length && !local.totalBanished;
+      if (j.state && (localEmpty || confirm('Cloud data found. Load it and replace what is in this browser?'))) {
+        this.state = Object.assign({}, DEFAULT_STATE, j.state);
+        this.saveState();
+        this.render();
+        this.showToast('☁️ Loaded your spirits from DynamoDB');
+      } else {
+        this.awsSave();
+        this.showToast('☁️ Connected. Your spirits now sync to AWS.');
+      }
+    } catch (e) {
+      this.setAwsBadge(false, '● AWS unreachable (saved locally)');
+      this.showToast('Could not reach AWS. Check the Function URL.');
+    }
+  }
+
+  awsSave() {
+    if (!this.awsUrl()) return;
+    clearTimeout(this._awsT);
+    this._awsT = setTimeout(async () => {
+      try {
+        const res = await fetch(this.awsUrl() + '/?user=' + encodeURIComponent(this.awsUid()), {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.state)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        this.setAwsBadge(true, '● Connected: Lambda + DynamoDB + Polly');
+        this.emitCloudWatchLog('AWS', 'PUT /state → Lambda → DynamoDB OK (user ' + this.awsUid() + ')');
+      } catch (e) {
+        this.setAwsBadge(false, '● AWS unreachable (saved locally)');
+      }
+    }, 800);
+  }
+
+  async speakWithPolly(text) {
+    if (this.sound.isMuted) return;
+    const url = this.awsUrl();
+    if (url) {
+      try {
+        const res = await fetch(url + '/speak', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+        const j = await res.json();
+        if (j.audio) {
+          new Audio('data:audio/mpeg;base64,' + j.audio).play();
+          this.emitCloudWatchLog('AWS', 'POST /speak → Lambda → Amazon Polly OK');
+          return;
+        }
+      } catch (e) {}
+    }
+    this.sound.speakPollyIncantation(text);
+  }
+
+  floatToast(msg) {
+    let t = document.getElementById('floatToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'floatToast';
+      t.setAttribute('role', 'status');
+      t.style.cssText = 'position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:3000;background:#1b122e;color:#f2eaff;border:1px solid var(--accent);padding:10px 18px;border-radius:999px;font-size:.85rem;box-shadow:0 8px 30px rgba(0,0,0,.6);max-width:90vw;text-align:center;transition:opacity .3s';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    clearTimeout(this._tt);
+    this._tt = setTimeout(() => { t.style.opacity = '0'; }, 2600);
+  }
+
+  showToast(msg) {
+    this.floatToast(msg);
+    this.altarStatus.textContent = msg;
+  }
+
+  emitCloudWatchLog(level, message) {
+    const now = new Date().toISOString();
+    const line = document.createElement('div');
+    line.className = 'cw-line';
+
+    let colorClass = 'cw-info';
+    if (level === 'BANISH' || level === 'ACHIEVEMENT') colorClass = 'cw-success';
+    if (level === 'SUMMON' || level === 'SEANCE') colorClass = 'cw-event';
+    if (level === 'RESURRECT') colorClass = 'cw-warn';
+
+    line.innerHTML = `<span class="cw-ts">[${now.slice(11, 19)}]</span> <span class="${colorClass}">[${level}]</span> <span>${this.escapeHtml(message)}</span>`;
+    this.cwTerminal.appendChild(line);
+    this.cwTerminal.scrollTop = this.cwTerminal.scrollHeight;
+  }
+
+  // Preload Sample Hackathon Tasks & Graves
+  seedDemoData() {
+    if (this.state.tasks.length && !confirm('This replaces your current spirits and cemetery. Continue?')) return;
+    this.state.tasks = [
+      {
+        id: 'sp-demo-boss',
+        title: 'Hackathon Final Submission: Spooky UI & AWS Architecture',
+        realm: 'docs',
+        level: 'boss',
+        createdAt: new Date().toISOString(),
+        hp: 100,
+        maxHp: 100
+      },
+      {
+        id: 'sp-demo-1',
+        title: 'Deploy AWS Lambda handler for BanishSoul function',
+        realm: 'aws',
+        level: 3,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'sp-demo-2',
+        title: 'Fix flickering candle SVG animation timing on Safari',
+        realm: 'bug',
+        level: 2,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'sp-demo-3',
+        title: 'Design Halloween Jack-o\'-lantern color palette tokens',
+        realm: 'design',
+        level: 1,
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    this.state.graveyard = [
+      {
+        id: 'tomb-demo-1',
+        title: 'Configure CORS on AWS API Gateway REST endpoint',
+        realm: 'aws',
+        level: 2,
+        banishedAt: '10:45 AM · Oct 31, 2026',
+        epitaph: 'Archived into the dark abyss of AWS CloudFormation.'
+      },
+      {
+        id: 'tomb-demo-2',
+        title: 'Center div in CSS using CSS Grid cemetery layout',
+        realm: 'code',
+        level: 1,
+        banishedAt: '09:20 AM · Oct 31, 2026',
+        epitaph: 'Rest in peace. Center alignment achieved at last.'
+      }
+    ];
+
+    this.state.activeTaskId = 'sp-demo-boss';
+    this.state.totalBanished = 2;
+    this.state.totalMinutes = 50;
+    this.state.xp = 175;
+    this.saveState();
+    this.render();
+
+    this.sound.playCandleIgnite();
+    this.showToast('⚡ Spooky demo spirits summoned into your sanctum!');
+    this.emitCloudWatchLog('DEMO', 'Demo dataset populated: 4 spirits, 1 Arch-Demon Boss, 2 monuments.');
+  }
+
+  exportGraveyard() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.state, null, 2));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", `graveyard-shift-backup-${Date.now()}.json`);
+    document.body.appendChild(dlAnchor);
+    dlAnchor.click();
+    dlAnchor.remove();
+    this.emitCloudWatchLog('EXPORT', 'Graveyard data exported to JSON format.');
+  }
+
+  escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+}
+
+// Instantiate on DOM load
+window.addEventListener('DOMContentLoaded', () => {
+  window.app = new GraveyardShiftApp();
+});
+</script>
+
+</body>
+</html>

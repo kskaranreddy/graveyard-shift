@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Graveyard Shift backend for Hack-to-Ween 2026 (Lambda + DynamoDB + Polly + CloudWatch Logs)
+
+Resources:
+  SpiritTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+
+  FnRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: GraveyardAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [dynamodb:GetItem, dynamodb:PutItem]
+                Resource: !GetAtt SpiritTable.Arn
+              - Effect: Allow
+                Action: polly:SynthesizeSpeech
+                Resource: '*'
+
+  Fn:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.12
+      Handler: index.handler
+      Role: !GetAtt FnRole.Arn
+      Timeout: 15
+      Environment:
+        Variables:
+          TABLE: !Ref SpiritTable
+      Code:
+        ZipFile: |
+          import json, os, base64, boto3
+          table = boto3.resource('dynamodb').Table(os.environ['TABLE'])
+          polly = boto3.client('polly')
+
+          def reply(code, body):
+              return {'statusCode': code, 'headers': {'content-type': 'application/json'}, 'body': json.dumps(body)}
+
+          def handler(event, context):
+              method = event['requestContext']['http']['method']
+              path = event.get('rawPath', '/')
+              uid = ((event.get('queryStringParameters') or {}).get('user') or 'demo')[:64]
+              try:
+                  if path.endswith('/speak') and method == 'POST':
+                      text = json.loads(event.get('body') or '{}').get('text', '')[:200]
+                      audio = None
+                      for voice in ('Matthew', 'Nicole'):
+                          try:
+                              audio = polly.synthesize_speech(Text=text, VoiceId=voice, OutputFormat='mp3')['AudioStream'].read()
+                              break
+                          except Exception as e:
+                              print('Polly voice failed', voice, str(e))
+                      if audio is None:
+                          return reply(502, {'error': 'Polly unavailable'})
+                      print(json.dumps({'event': 'PollySpeak', 'chars': len(text)}))
+                      return reply(200, {'audio': base64.b64encode(audio).decode()})
+                  if method == 'PUT':
+                      state = json.loads(event.get('body') or '{}')
+                      table.put_item(Item={'userId': uid, 'state': json.dumps(state)})
+                      print(json.dumps({'event': 'StateSaved', 'user': uid,
+                                        'spirits': len(state.get('tasks', [])),
+                                        'banished': state.get('totalBanished', 0)}))
+                      return reply(200, {'ok': True})
+                  item = table.get_item(Key={'userId': uid}).get('Item')
+                  return reply(200, {'state': json.loads(item['state']) if item else None})
+              except Exception as e:
+                  print('ERROR', str(e))
+                  return reply(500, {'error': str(e)})
+
+  FnUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt Fn.Arn
+      AuthType: NONE
+      Cors:
+        AllowOrigins: ['*']
+        AllowMethods: ['*']
+        AllowHeaders: [content-type]
+
+  UrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref Fn
+      Action: lambda:InvokeFunctionUrl
+      Principal: '*'
+      FunctionUrlAuthType: NONE
+
+  UrlInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref Fn
+      Action: lambda:InvokeFunction
+      Principal: '*'
+      InvokedViaFunctionUrl: true
+
+Outputs:
+  FunctionUrl:
+    Description: Paste this into the AWS tab of Graveyard Shift
+    Value: !GetAtt FnUrl.FunctionUrl
